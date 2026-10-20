@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Heart Disease Prediction — MLOps Project Report</title>
+<style>
+  :root {
+    --accent: #c0392b;
+    --accent-dark: #902419;
+    --ink: #1f2933;
+    --muted: #52606d;
+    --bg: #ffffff;
+    --soft: #f7f8fa;
+    --border: #e1e5ea;
+    --code-bg: #2d2d2d;
+    --ok: #27ae60;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.65;
+    margin: 0;
+    padding: 0;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 48px 32px 80px; }
+  header.title {
+    border-bottom: 4px solid var(--accent);
+    padding-bottom: 24px;
+    margin-bottom: 36px;
+  }
+  header.title h1 {
+    font-size: 2.1rem;
+    margin: 0 0 12px;
+    color: var(--accent-dark);
+    line-height: 1.2;
+  }
+  .meta { color: var(--muted); font-size: 0.98rem; }
+  .meta strong { color: var(--ink); }
+  .meta a { color: var(--accent); text-decoration: none; }
+  .meta a:hover { text-decoration: underline; }
+  .badges { margin-top: 16px; }
+  .badge {
+    display: inline-block;
+    background: var(--soft);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 4px 6px 0 0;
+  }
+  h2 {
+    font-size: 1.45rem;
+    margin: 48px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+    color: var(--accent-dark);
+  }
+  h3 { font-size: 1.1rem; margin: 28px 0 10px; color: var(--ink); }
+  p { margin: 12px 0; }
+  ul, ol { margin: 12px 0; padding-left: 26px; }
+  li { margin: 5px 0; }
+  code {
+    background: var(--soft);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.86em;
+    color: var(--accent-dark);
+  }
+  pre {
+    background: var(--code-bg);
+    color: #f8f8f2;
+    border-radius: 8px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+  pre code { background: none; border: none; color: inherit; padding: 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 18px 0;
+    font-size: 0.92rem;
+  }
+  th, td { border: 1px solid var(--border); padding: 9px 12px; text-align: left; }
+  th { background: var(--soft); font-weight: 600; }
+  tbody tr:nth-child(even) { background: #fbfcfd; }
+  .figure {
+    margin: 24px 0;
+    text-align: center;
+  }
+  .figure img {
+    max-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .figure figcaption {
+    font-size: 0.86rem;
+    color: var(--muted);
+    margin-top: 8px;
+    font-style: italic;
+  }
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 680px) { .grid2 { grid-template-columns: 1fr; } }
+  .screenshot {
+    margin: 22px 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--soft);
+  }
+  .screenshot .cap {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+  }
+  .screenshot .cap b { color: var(--accent-dark); }
+  .screenshot img { display: block; width: 100%; }
+  .pending {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 26px;
+    text-align: center;
+    color: var(--muted);
+    background: var(--soft);
+    margin: 22px 0;
+    font-size: 0.92rem;
+  }
+  .callout {
+    background: #fef6f5;
+    border-left: 4px solid var(--accent);
+    padding: 12px 18px;
+    border-radius: 4px;
+    margin: 18px 0;
+    font-size: 0.93rem;
+  }
+  /* Architecture diagram */
+  .arch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    background: var(--soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 18px;
+    justify-content: center;
+  }
+  .node {
+    background: #fff;
+    border: 1.5px solid var(--accent);
+    color: var(--accent-dark);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 92px;
+  }
+  .node.alt { border-color: var(--muted); color: var(--muted); }
+  .arrow { color: var(--accent); font-size: 1.3rem; font-weight: 700; }
+  .ok { color: var(--ok); font-weight: 700; }
+  footer {
+    margin-top: 56px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  @media print {
+    .wrap { padding: 0 12px; }
+    pre { white-space: pre-wrap; }
+    h2 { page-break-after: avoid; }
+    .figure, .screenshot, table { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>Heart Disease Prediction — End-to-End MLOps Project Report</h1>
+  <div class="meta">
+    <div><strong>Course:</strong> Machine Learning Operations (MLOps) AIMLCZG523 — Assignment 01</div>
+    <div><strong>Problem:</strong> Predict the risk of heart disease from patient health data and deploy the solution as a cloud-ready, monitored API.</div>
+    <div><strong>GitHub Repository:</strong> <a href="https://github.com/agartanu-git/heart-disease-mlops">https://github.com/agartanu-git/heart-disease-mlops</a></div>
+  </div>
+  <div class="badges">
+    <span class="badge">Python 3.9</span>
+    <span class="badge">scikit-learn 1.5.1</span>
+    <span class="badge">MLflow</span>
+    <span class="badge">FastAPI</span>
+    <span class="badge">Docker</span>
+    <span class="badge">Kubernetes + Helm</span>
+    <span class="badge">GitHub Actions</span>
+    <span class="badge">Prometheus + Grafana</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<h2>1. Setup &amp; Installation</h2>
+<pre><code>python3 -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install -r requirements.txt
+
+# End-to-end pipeline
+bash run_pipeline.sh          # download -&gt; EDA -&gt; train
+uvicorn src.api:app --port 8000   # serve</code></pre>
+<p>Conda alternative: <code>conda env create -f environment.yml</code>.</p>
+<p>All scripts execute from a clean checkout; paths are resolved relative to the
+project root (<code>src/config.py</code>), and dependencies are pinned in
+<code>requirements.txt</code>.</p>
+
+<!-- 2 -->
+<h2>2. Data Acquisition &amp; EDA</h2>
+<p><strong>Dataset:</strong> UCI Heart Disease (processed Cleveland) — 303 records,
+13 features, 1 target. Downloaded automatically by
+<code>scripts/download_data.py</code> (honours HTTP/HTTPS proxy, with a mirror fallback).</p>
+<h3>Cleaning (<code>src/data_preprocessing.py</code>)</h3>
+<ul>
+  <li><code>?</code> markers coerced to <code>NaN</code>; duplicates dropped.</li>
+  <li>Multi-class severity target (0–4) binarised to <strong>0 = no disease / 1 = disease</strong>.</li>
+  <li>All features coerced to numeric.</li>
+</ul>
+<p><strong>Class balance:</strong> 164 negative vs 139 positive — fairly balanced,
+so accuracy is a reasonable headline metric alongside ROC-AUC.</p>
+
+<div class="grid2">
+  <figure class="figure">
+    <img src="figures/class_balance.png" alt="Class balance" />
+    <figcaption>Target class balance (0 = no disease, 1 = disease).</figcaption>
+  </figure>
+  <figure class="figure">
+    <img src="figures/correlation_heatmap.png" alt="Correlation heatmap" />
+    <figcaption>Feature correlation heatmap.</figcaption>
+  </figure>
+  <figure class="figure">
+    <img src="figures/histograms.png" alt="Histograms" />
+    <figcaption>Numeric feature distributions by target class.</figcaption>
+  </figure>
+  <figure class="figure">
+    <img src="figures/boxplots.png" alt="Boxplots" />
+    <figcaption>Numeric features by target (outlier &amp; spread view).</figcaption>
+  </figure>
+</div>
+<p>Key EDA findings: <code>cp</code> (chest pain type), <code>thalach</code> (max heart
+rate, negatively correlated with disease), <code>oldpeak</code>, <code>ca</code>, and
+<code>thal</code> show the strongest association with the target.</p>
+
+<!-- 3 -->
+<h2>3. Feature Engineering &amp; Model Development</h2>
+<h3>Preprocessing pipeline (fitted only on training data to avoid leakage)</h3>
+<ul>
+  <li>Numeric (<code>age, trestbps, chol, thalach, oldpeak</code>): median impute → standard scale.</li>
+  <li>Categorical (<code>sex, cp, fbs, restecg, exang, slope, ca, thal</code>): most-frequent impute → one-hot encode (<code>handle_unknown="ignore"</code>).</li>
+</ul>
+<p><strong>Models trained</strong> (each inside a full <code>Pipeline</code>, tuned with
+<code>GridSearchCV</code>, 5-fold stratified CV, scored on ROC-AUC):</p>
+<ol>
+  <li>Logistic Regression — grid over <code>C</code>, <code>penalty</code>, <code>solver</code>.</li>
+  <li>Random Forest — grid over <code>n_estimators</code>, <code>max_depth</code>, <code>min_samples_split</code>.</li>
+</ol>
+
+<h3>Results (held-out 20% test set)</h3>
+<table>
+  <thead>
+    <tr><th>Model</th><th>CV ROC-AUC</th><th>Test Acc</th><th>Precision</th><th>Recall</th><th>F1</th><th>Test ROC-AUC</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Logistic Regression</strong> <span class="ok">✓</span></td><td>0.899</td><td><strong>0.885</strong></td><td>0.839</td><td>0.929</td><td>0.881</td><td><strong>0.966</strong></td></tr>
+    <tr><td>Random Forest</td><td>0.903</td><td>0.836</td><td>0.821</td><td>0.821</td><td>0.821</td><td>0.944</td></tr>
+  </tbody>
+</table>
+<p><strong>Model selection:</strong> Logistic Regression was selected as the
+production model (highest test ROC-AUC = 0.966 and best recall = 0.93, which
+matters for a screening task where missing a positive case is costly). Best
+hyper-parameters: <code>C=0.1, penalty=l2, solver=liblinear</code>.</p>
+
+<div class="screenshot">
+  <div class="cap"><b>Screenshot S1 —</b> End-to-end pipeline run: data download (303 rows), EDA class balance, and both models' cross-validated &amp; test metrics, selecting Logistic Regression (ROC-AUC = 0.9665) as the best model.</div>
+  <img src="screenshots/s1_pipeline_training.png" alt="Pipeline training run" />
+</div>
+
+<div class="grid2">
+  <figure class="figure">
+    <img src="figures/logistic_regression_roc_curve.png" alt="LogReg ROC" />
+    <figcaption>ROC curve — Logistic Regression (selected model).</figcaption>
+  </figure>
+  <figure class="figure">
+    <img src="figures/logistic_regression_confusion_matrix.png" alt="LogReg confusion matrix" />
+    <figcaption>Confusion matrix — Logistic Regression.</figcaption>
+  </figure>
+  <figure class="figure">
+    <img src="figures/random_forest_roc_curve.png" alt="RF ROC" />
+    <figcaption>ROC curve — Random Forest.</figcaption>
+  </figure>
+  <figure class="figure">
+    <img src="figures/random_forest_confusion_matrix.png" alt="RF confusion matrix" />
+    <figcaption>Confusion matrix — Random Forest.</figcaption>
+  </figure>
+</div>
+
+<!-- 4 -->
+<h2>4. Experiment Tracking (MLflow)</h2>
+<p><code>src/train.py</code> logs <strong>every run</strong> to MLflow (<code>./mlruns</code>):</p>
+<ul>
+  <li>Parameters: model type + tuned hyper-parameters.</li>
+  <li>Metrics: <code>cv_roc_auc</code> and all test metrics.</li>
+  <li>Artifacts: ROC curve, confusion matrix, and the serialized sklearn model.</li>
+</ul>
+<pre><code>mlflow ui --backend-store-uri ./mlruns   # http://localhost:5000</code></pre>
+<p>Experiment name: <code>heart-disease-classification</code>.</p>
+
+<!-- 5 -->
+<h2>5. Model Packaging &amp; Reproducibility</h2>
+<ul>
+  <li>Final pipeline persisted with <code>joblib</code> → <code>models/model.joblib</code>
+  (preprocessing + estimator in one object, so inference uses the exact training transforms).</li>
+  <li>Metrics summary → <code>models/metrics.json</code>.</li>
+  <li>Deterministic train/test split (<code>RANDOM_STATE=42</code>) saved to <code>data/processed/{train,test}.csv</code>.</li>
+  <li>Pinned <code>requirements.txt</code> + <code>environment.yml</code>.</li>
+</ul>
+
+<!-- 6 -->
+<h2>6. CI/CD &amp; Automated Testing</h2>
+<p><strong>Tests</strong> (<code>tests/</code>, pytest) — 13 tests covering:</p>
+<ul>
+  <li>Data cleaning (binarisation, dedup, missing-value handling).</li>
+  <li>Preprocessing (no NaNs after transform, unknown-category robustness).</li>
+  <li>Model (metric computation, pipeline fit/predict).</li>
+  <li>API integration (<code>/health</code>, <code>/predict</code>, validation 422, <code>/metrics</code>).</li>
+</ul>
+
+<div class="screenshot">
+  <div class="cap"><b>Screenshot S2 —</b> Quality gate passing locally: <code>flake8</code> clean, <code>black --check</code> reports no changes, and all <b>13 pytest tests PASSED</b>.</div>
+  <img src="screenshots/s2_lint_format_tests.png" alt="Lint, format and tests passing" />
+</div>
+
+<p><strong>GitHub Actions</strong> (<code>.github/workflows/ci.yml</code>) on every push/PR:</p>
+<ol>
+  <li>Lint (flake8) + format check (black).</li>
+  <li>Unit tests with coverage.</li>
+  <li>Download data + <strong>train model</strong>, upload model/metrics/figures as artifacts.</li>
+  <li>Build Docker image + smoke-test <code>/health</code>.</li>
+</ol>
+<p>The pipeline fails on any lint/test/build error with clear logs.</p>
+
+<div class="screenshot">
+  <div class="cap"><b>Screenshot S8 —</b> GitHub Actions: the <b>MLOps CI/CD</b> workflow run on the initial commit completes successfully (green check, 3m 21s) on the <code>main</code> branch.</div>
+  <img src="screenshots/s8_github_actions.png" alt="GitHub Actions successful run" />
+</div>
+
+<!-- 7 -->
+<h2>7. Containerization &amp; API Serving</h2>
+<p><code>docker/Dockerfile</code> — multi-stage, non-root user, Python-based
+healthcheck, model baked in.</p>
+<pre><code>docker build -f docker/Dockerfile -t heart-disease-api:latest .
+docker run -p 8000:8000 heart-disease-api:latest</code></pre>
+<p>The API exposes <code>GET /health</code>, <code>POST /predict</code>,
+<code>POST /predict/batch</code>, <code>GET /metrics</code> and interactive docs at
+<code>/docs</code>.</p>
+
+<div class="screenshot">
+  <div class="cap"><b>Screenshot S3a —</b> FastAPI service starting with Uvicorn; the trained pipeline is loaded from <code>models/model.joblib</code> and the application reports startup complete on port 8000.</div>
+  <img src="screenshots/s3a_api_server_startup.png" alt="API server startup" />
+</div>
+
+<div class="screenshot">
+  <div class="cap"><b>Screenshot S3b —</b> Live API calls: <code>/health</code> returns
+  <code>{"status":"ok","model_loaded":true,"model_type":"LogisticRegression"}</code>,
+  the <code>/metrics</code> endpoint exposes the custom Prometheus metrics
+  (<code>heart_predictions_total</code>, <code>heart_prediction_latency_seconds</code>),
+  and the API's input validation rejects a malformed body with a 422 error —
+  demonstrating request validation.</div>
+  <img src="screenshots/s3b_api_health_predict_metrics.png" alt="API health, predict and metrics" />
+</div>
+
+<div class="callout">
+  A successful <code>/predict</code> call (run from the project directory with
+  <code>-d @sample_request.json</code>) returns
+  <code>{"prediction":0,"label":"No Disease","confidence":0.5742,"probability_disease":0.4258}</code>.
+</div>
+
+<div class="screenshot">
+  <div class="cap"><b>Screenshot S5 —</b> The multi-stage Docker image builds successfully end-to-end (<code>Building 12/12 FINISHED</code>), producing <code>heart-disease-api:latest</code>. The container was separately verified running <code>Up (healthy)</code> and serving predictions.</div>
+  <img src="screenshots/s5_docker_build.png" alt="Docker image build finished" />
+</div>
+
+<!-- 8 -->
+<h2>8. Production Deployment</h2>
+<p><strong>Kubernetes</strong> manifests (<code>deployment/k8s/</code>): namespace,
+Deployment (2 replicas, readiness/liveness probes, resource limits), LoadBalancer
+Service, Ingress, and HPA (CPU-based, 2→6 replicas). A parameterised
+<strong>Helm chart</strong> is provided in <code>deployment/helm/heart-disease-api/</code>.</p>
+<pre><code># Minikube
+eval $(minikube docker-env)
+docker build -f docker/Dockerfile -t heart-disease-api:latest .
+kubectl apply -f deployment/k8s/
+# or: helm install heart-api deployment/helm/heart-disease-api -n heart-disease --create-namespace</code></pre>
+
+<div class="pending">
+  <strong>Screenshot(s) (to be added):</strong> <code>kubectl get pods,svc -n heart-disease</code>
+  showing running pods and the exposed Service endpoint.
+</div>
+
+<!-- 9 -->
+<h2>9. Monitoring &amp; Logging</h2>
+<ul>
+  <li><strong>Structured logging</strong> of every request/response in the API.</li>
+  <li><strong>Prometheus</strong> metrics at <code>/metrics</code>: default FastAPI HTTP
+  metrics plus custom <code>heart_predictions_total{predicted_class}</code> and
+  <code>heart_prediction_latency_seconds</code>.</li>
+  <li><strong>Grafana</strong> dashboard (auto-provisioned) visualising prediction volume,
+  class distribution, latency p95, and request rate.</li>
+</ul>
+<pre><code>docker compose up --build
+# API http://localhost:8000 | Prometheus :9090 | Grafana :3000 (admin/admin)</code></pre>
+<p>The custom metrics visible in Screenshot S3b above confirm the instrumentation
+is live and scrape-ready.</p>
+
+<!-- 10 -->
+<h2>10. Architecture</h2>
+<div class="arch">
+  <div class="node">UCI Dataset</div>
+  <span class="arrow">→</span>
+  <div class="node">Preprocessing<br/>Pipeline</div>
+  <span class="arrow">→</span>
+  <div class="node">Train + Tune<br/>LogReg &amp; RF</div>
+  <span class="arrow">→</span>
+  <div class="node alt">MLflow</div>
+  <span class="arrow">→</span>
+  <div class="node">model.joblib</div>
+  <span class="arrow">→</span>
+  <div class="node">FastAPI<br/>/predict</div>
+  <span class="arrow">→</span>
+  <div class="node">Docker</div>
+  <span class="arrow">→</span>
+  <div class="node">Kubernetes<br/>+ HPA</div>
+</div>
+<div class="arch" style="margin-top:10px;">
+  <div class="node">FastAPI /metrics</div>
+  <span class="arrow">→</span>
+  <div class="node alt">Prometheus</div>
+  <span class="arrow">→</span>
+  <div class="node alt">Grafana</div>
+  <span style="width:40px;"></span>
+  <div class="node">GitHub Actions</div>
+  <span class="arrow">→</span>
+  <div class="node">Docker image</div>
+</div>
+
+<!-- 11 -->
+<h2>11. Repository</h2>
+<p>All code, Dockerfiles, Kubernetes/Helm manifests, CI/CD workflow, tests,
+report and figures are version-controlled and pushed to GitHub:
+<a href="https://github.com/agartanu-git/heart-disease-mlops">github.com/agartanu-git/heart-disease-mlops</a>.</p>
+
+<div class="screenshot">
+  <div class="cap"><b>Screenshot S9 —</b> Public GitHub repository showing the full project tree (<code>.github/workflows</code>, <code>deployment</code>, <code>docker</code>, <code>monitoring</code>, <code>src</code>, <code>tests</code>, <code>reports</code>, …) on the <code>main</code> branch.</div>
+  <img src="screenshots/s9_github_repo.png" alt="GitHub repository file tree" />
+</div>
+
+<footer>
+  Results reproduced locally with Python 3.9, scikit-learn 1.5.1 ·
+  <a href="https://github.com/agartanu-git/heart-disease-mlops">github.com/agartanu-git/heart-disease-mlops</a>
+</footer>
+
+</div>
+</body>
+</html>

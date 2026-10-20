@@ -3,6 +3,7 @@
 **Course:** Machine Learning Operations (MLOps) AIMLCZG523 — Assignment 01
 **Problem:** Predict the risk of heart disease from patient health data and
 deploy the solution as a cloud-ready, monitored API.
+**GitHub Repository:** https://github.com/agartanu-git/heart-disease-mlops
 
 ---
 
@@ -192,21 +193,6 @@ flowchart LR
     F --> I[Prometheus] --> J[Grafana]
     K[GitHub Actions] --> G
 ```
-
----
-
-## 11. Deliverables Checklist
-
-- [x] Code, Dockerfile, requirements.txt / environment.yml
-- [x] Dataset download script + cleaned data pipeline
-- [x] EDA, training, inference scripts
-- [x] `tests/` with unit + integration tests
-- [x] GitHub Actions workflow YAML
-- [x] K8s manifests + Helm chart
-- [x] Monitoring (Prometheus + Grafana) config
-- [x] This report + README
-- [ ] Screenshots folder (`reports/screenshots/`) — add deployment screenshots
-- [ ] Short video walkthrough of the pipeline
 
 ---
 
