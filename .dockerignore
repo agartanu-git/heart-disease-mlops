@@ -1,0 +1,21 @@
+# Ignore everything not needed inside the serving image.
+.git
+.github
+.venv
+venv
+__pycache__
+*.pyc
+mlruns
+mlartifacts
+notebooks
+reports
+tests
+data
+deployment
+monitoring
+docs
+*.md
+.gitignore
+.flake8
+pytest.ini
+docker-compose.yml
